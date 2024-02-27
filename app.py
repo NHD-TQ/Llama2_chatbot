@@ -52,13 +52,15 @@ def generate_llama2_responses(prompt_input):
             string_dialogue += "User" + dict_message['content'] + "\n\n"
         else:
             string_dialogue += "Assistant" + dict_message['content'] + "\n\n"
-    output = replicate.run('a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5',
+    output = replicate.run('meta/llama-2-13b-chat:f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d',
                            input = {"prompt": f"{string_dialogue} {prompt_input} Assistant:",
                            "temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":1})
+    return output
 
 # Accept prompt input
 # User-provided prompt
-if prompt != st.chat_input(disabled=not replicate): # Kiểm tra xem replicate api đã tồn tại hay chưa nếu rồi thì gán prompt = st.chat_input
+
+if prompt := st.chat_input(disabled= not replicate_api): # Kiểm tra xem replicate api đã tồn tại hay chưa nếu rồi thì gán prompt = st.chat_input
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
@@ -68,6 +70,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking"):
             response = generate_llama2_responses(prompt)
+            print(response)
             placeholder = st.empty()
             full_response = ''
             for item in response:
